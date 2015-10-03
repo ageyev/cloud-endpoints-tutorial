@@ -17,11 +17,11 @@ GAE бесплатен в рамках начальных квот, которы
 
 ID должно быть уникальным. При этом если {ID проекта}@ gmail.com занято, то этот ID уже будет отмечен как «занят» для GAE. То есть на получиться создать  {ID проекта }.appspot.com и {ID проекта}@ gmail.com одновременно.
 
-<img src="pic.01" />
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/pic.01.png" />
 
 После того как проект создан, он будет доступен в консоли разработчика:
 
-<img src="pic.02" />
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/pic.02.png" />
 
 Для данного руководства мы создадим два проекта в консоли разработчика Google:
 
@@ -29,7 +29,7 @@ hello-habrahabr-api.appspot.com , где будет API (собственно Go
 
 В консоли разработчика нашего Cloud Endpoints проекта hello-habrahabr-api.appspot.com в меню выбираем APIs & auth > Credentials > Add Credentials > OAuth 2.0 Client ID > Configure consent screen
 
-<img src="pic.03" />
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/pic.03.png" />
 
 В настойках автоматически вставляется адрес электронной почты разработчика, также указываем имя приложения (Product name) (обязательно), и (опционально) адрес веб-страницы, логотип и другие данные.
 
