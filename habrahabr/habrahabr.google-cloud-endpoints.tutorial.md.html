@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="file:////opt/extras.ubuntu.com/uberwriter/share/uberwriter/media/uberwriter.css" type="text/css" />
+</head>
+<body>
+<h1 id="google-cloud-endpoints-на-java-руководство-для-начинающих">Google Cloud Endpoints на Java: руководство для начинающих</h1>
+<h1> 
+Введение
+</h1>
+<p>Google Cloud Endpoints – это надстройка над Google App Engine (GAE) для создания API для веб и мобильных приложений, делающая разработку проще и включающую в себя «из коробки» защиту от DoS-атак, OAuth 2.0 идентификацию, веб-интерфейс для тестирования API, SSL, атоматическая масштабируемость (сайт не упадет под хабра-эффектом), а также возможность использования сервисов доступных в Google App Engine (отсылка и прием электронной почты и XMPP-сообщений, загрузка данных из Интернет, задачи по расписанию и др.)</p>
+<p>GAE бесплатен в рамках начальных квот, которые позволяют попробовать и протестировать сервис, и также обеспечить функционирование вебсайта без больших нагрузок. При исчерпании квот сервис становиться платным. Идея сервиса в том, что он делает всю или большую часть работы системного администратора, плюс некоторую часть работы программиста. Этот сервис может быть интересен стартапам, так как позволяет малыми силами и в котроткие сроки запустить рабочий проект.</p>
+<p>Под катом много картинок и текста, и предполагается, что читатель знаком с Java Servlets (для бэкенда) и AngularJS (для фронтенда). <cut></p>
+<h1> 
+Регистрация
+</h1>
+<p>Для начала понадобится создать проект на GAE. Для этого потребуется учетная запись google. Можно воспользоваться существующей или создать новую. Политика Google допускает создание нескольких учетных записей для одного лица. Google предупреждает, когда приложение запрашивает данные пользователя (OAuth consent screen), то в числе данных о приложении может передаваться информация о разработчике, в том числе его адрес электронной почты, и это не любой адрес электронной почты, а именно учетной записи @ gmail.com под которой работают c GAE, так что возможно стоит заводить отдельные учетные записи для разных проектов, благо тот же Google Chrome позволяет удобно между ними переключаться.</p>
+<p>Переходим в консоль разработчика Google: https://console.developers.google.com и логинимся используя выбранную учетную запись Google, нажимаем «Create an empty project», выбираем имя проекта и ID проекта. Проект будет доступен по адресу http://{ID проекта}.appspot.com</p>
+<p>Например: hello-habrahabr-api.appspot.com</p>
+<p>ID должно быть уникальным. При этом если {ID проекта}@ gmail.com занято, то этот ID уже будет отмечен как «занят» для GAE. То есть на получиться создать {ID проекта }.appspot.com и {ID проекта}@ gmail.com одновременно.</p>
+<p><img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/pic.01.png" /></p>
+<p>После того как проект создан, он будет доступен в консоли разработчика:</p>
+<p><img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/pic.02.png" /></p>
+<p>Для данного руководства мы создадим два проекта в консоли разработчика Google: hello-habrahabr-api.appspot.com , где будет API (собственно Google Cloud Endpoints), и hello-habrahabr-webapp.appspot.com , на котором разместим веб-клиент. Я делаю это для наглядности разделения фронэнда и бэкенда, можно было бы создавать на одном домене.</p>
+<p>В консоли разработчика нашего Cloud Endpoints проекта hello-habrahabr-api.appspot.com в меню выбираем APIs &amp; auth &gt; Credentials &gt; Add Credentials &gt; OAuth 2.0 Client ID &gt; Configure consent screen</p>
+<p><img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/pic.03.png" /></p>
+<p>В настойках автоматически вставляется адрес электронной почты разработчика, также указываем имя приложения (Product name) (обязательно), и (опционально) адрес веб-страницы, логотип и другие данные.</p>
+<p>В меню выбираем APIs &amp; auth &gt; Credentials &gt; Add Credentials &gt; OAuth 2.0 Client ID и указываем тип приложения для которого создаем client ID. В этом руководстве мы будем рассматривать создание веб-приложения, поэтому выбираем Web application, и нажимаем «Create»</p>
+<p>Мы указываем:</p>
+<ul>
+<li><p>имя веб-приложения (любое)</p></li>
+<li><p>домен(ы) с которого Javascript может обращаться к API (Authorized JavaScript origins) это может быть любой домен. Можно тот же на котором работает Cloud Endpoints. При этом надо учитывать, что Cloud Endpoints пока не работает на домене пользователя, только на .appspot.com. Но веб-приложение которое обращается к API может работать на любом домене.</p></li>
+<li><p>Authorized redirect URIs — по умолчанию указываем тот же домент + /oauth2callback : https://hello-habrahabr-webapp.appspot.com/oauth2callback</p></li>
+</ul>
+<p>Нажимаем “Create”, получаем “client ID” и “client secret” - они нам понадобятся для веб-приложения.</p>
+<h1> 
+Подготовка и настройка рабочей среды.
+</h1>
+
+<p>Нам понадобится:</p>
+<p><i>1. Java 7</i> (Java 8 пока не поддерживается GAE)</p>
+<p>установка Java: http://www.java.com/en/download/manual_java7.jsp</p>
+<p>для Ubuntu/Debian:</p>
+<p><source lang="Bash"> sudo add-apt-repository ppa:webupd8team/java sudo apt-get update &amp;&amp; sudo apt-get install oracle-java7-installer </source></p>
+<p><i>2. Maven</i></p>
+<p>установка: http://maven.apache.org/install.html</p>
+<p>в Linux (последняя версия 3.3.3) :</p>
+<p><source lang="Bash"> sudo mkdir /usr/local/apache-maven/ cd /usr/local/apache-maven &amp;&amp; sudo wget http://www.eu.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz &amp;&amp; sudo tar xvf apache-maven-3.3.3-bin.tar.gz echo ‘export M2_HOME=/usr/local/apache-maven/apache-maven-3.3.3’ &gt;&gt; ~/.bashrc source ~/.bashrc </source></p>
+<p>для Ubuntu/Debian (в депозитариях сейчас версия 3.0.5) :</p>
+<p><source lang="Bash"> sudo apt-get install maven </source></p>
+<p><i>3. IDE или редактор кода</i> – по вкусу. Eclipse и IntelliJ IDEA Ultimate имеют плагины для работы с GAE, но тестирование оффлайн на своей машине для Cloud Endpoints все равно работать не будет (хотя в документации указано что должно).</p>
+<p>Вместо GAE-плагинов проще и удобнее (имхо) использовать Maven в командной строке, так что вполне подойдет IntelliJ IDEA Community Edtion – там есть встроенный терминал, и это все что нужно. В Eclipse можно установить <a href="https://marketplace.eclipse.org/content/tm-terminal"> TM Terminal </a></p>
+<p><i>4. Google App Engine SDK</i>. Можно скачать на https://cloud.google.com/appengine/downloads#Google_App_Engine_SDK_for_Java</p>
+<p><source lang="Bash"> mkdir ~/GAE-SDK &amp;&amp; cd ~/GAE-SDK wget https://storage.googleapis.com/appengine-sdks/featured/appengine-java-sdk-1.9.27.zip &amp;&amp; unzip appengine-java-sdk-1.9.27.zip </source></p>
+</body>
+</html>
