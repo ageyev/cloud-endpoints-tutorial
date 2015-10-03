@@ -67,7 +67,7 @@ sudo apt-get update && sudo apt-get install oracle-java7-installer
 в Linux (последняя версия 3.3.3) :
 
 <source lang="Bash">
-```
+```bash
 sudo mkdir /usr/local/apache-maven/
 cd /usr/local/apache-maven && sudo wget http://www.eu.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz && sudo tar xvf apache-maven-3.3.3-bin.tar.gz
 echo 'export M2_HOME=/usr/local/apache-maven/apache-maven-3.3.3' >> ~/.bashrc
@@ -91,20 +91,3 @@ sudo apt-get install maven
 mkdir ~/GAE-SDK && cd ~/GAE-SDK
 wget https://storage.googleapis.com/appengine-sdks/featured/appengine-java-sdk-1.9.27.zip && unzip appengine-java-sdk-1.9.27.zip
 </source>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
