@@ -66,17 +66,17 @@ sudo apt-get update && sudo apt-get install oracle-java7-installer
 
 в Linux (последняя версия 3.3.3) :
 
-<source lang="Bash">
-sudo mkdir /usr/local/apache-maven/
-cd /usr/local/apache-maven && sudo wget http://www.eu.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz && sudo tar xvf apache-maven-3.3.3-bin.tar.gz
-echo 'export M2_HOME=/usr/local/apache-maven/apache-maven-3.3.3' >> ~/.bashrc
-source ~/.bashrc
-</source>
+    <source lang="Bash">
+    sudo mkdir /usr/local/apache-maven/
+    cd /usr/local/apache-maven && sudo wget http://www.eu.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz && sudo tar xvf apache-maven-3.3.3-bin.tar.gz
+    echo 'export M2_HOME=/usr/local/apache-maven/apache-maven-3.3.3' >> ~/.bashrc
+    source ~/.bashrc
+    </source>
 
 для Ubuntu/Debian (в депозитариях сейчас версия 3.0.5) :
 
 <source lang="Bash">
-sudo apt-get install maven
+    sudo apt-get install maven
 </source>
 
 3. IDE – по вкусу. Eclipse и IntelliJ IDEA Ultimate имеют плагины для работы с GAE, но тестирование оффлайн на своей машине для Cloud Endpoints все равно работать не будет (хотя в документации указано что должно).
@@ -86,8 +86,8 @@ sudo apt-get install maven
 4. Google App Engine SDK. Можно скачать на https://cloud.google.com/appengine/downloads#Google_App_Engine_SDK_for_Java
 
 <source lang="Bash">
-mkdir ~/GAE-SDK && cd ~/GAE-SDK
-wget https://storage.googleapis.com/appengine-sdks/featured/appengine-java-sdk-1.9.27.zip && unzip appengine-java-sdk-1.9.27.zip
+    mkdir ~/GAE-SDK && cd ~/GAE-SDK
+    wget https://storage.googleapis.com/appengine-sdks/featured/appengine-java-sdk-1.9.27.zip && unzip appengine-java-sdk-1.9.27.zip
 </source>
 
 
