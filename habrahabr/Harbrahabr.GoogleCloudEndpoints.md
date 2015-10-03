@@ -49,7 +49,7 @@ hello-habrahabr-api.appspot.com , где будет API (собственно Go
 
 Нам понадобится:
 
-1.Java 7 (Java 8 пока не поддерживается GAE)
+<i>1. Java 7</i> (Java 8 пока не поддерживается GAE)
 
 установка Java: http://www.java.com/en/download/manual_java7.jsp
 
@@ -60,34 +60,36 @@ sudo add-apt-repository ppa:webupd8team/java
 sudo apt-get update && sudo apt-get install oracle-java7-installer
 </source>
 
-2. Maven
+<i>2. Maven</i>
 
 установка: http://maven.apache.org/install.html
 
 в Linux (последняя версия 3.3.3) :
 
-    <source lang="Bash">
-    sudo mkdir /usr/local/apache-maven/
-    cd /usr/local/apache-maven && sudo wget http://www.eu.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz && sudo tar xvf apache-maven-3.3.3-bin.tar.gz
-    echo 'export M2_HOME=/usr/local/apache-maven/apache-maven-3.3.3' >> ~/.bashrc
-    source ~/.bashrc
-    </source>
+<source lang="Bash">
+```
+sudo mkdir /usr/local/apache-maven/
+cd /usr/local/apache-maven && sudo wget http://www.eu.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz && sudo tar xvf apache-maven-3.3.3-bin.tar.gz
+echo 'export M2_HOME=/usr/local/apache-maven/apache-maven-3.3.3' >> ~/.bashrc
+source ~/.bashrc
+```
+</source>
 
 для Ubuntu/Debian (в депозитариях сейчас версия 3.0.5) :
 
 <source lang="Bash">
-    sudo apt-get install maven
+sudo apt-get install maven
 </source>
 
-3. IDE – по вкусу. Eclipse и IntelliJ IDEA Ultimate имеют плагины для работы с GAE, но тестирование оффлайн на своей машине для Cloud Endpoints все равно работать не будет (хотя в документации указано что должно).
+<i>3. IDE</i> – по вкусу. Eclipse и IntelliJ IDEA Ultimate имеют плагины для работы с GAE, но тестирование оффлайн на своей машине для Cloud Endpoints все равно работать не будет (хотя в документации указано что должно).
 
 Вместо GAE-плагинов проще и удобнее (имхо) использовать Maven в командной строке, так что вполне подойдет IntelliJ IDEA Community Edtion – там есть встроенный терминал, и это все что нужно. В Eclipse можно установить <a href="https://marketplace.eclipse.org/content/tm-terminal"> TM Terminal </a>
 
-4. Google App Engine SDK. Можно скачать на https://cloud.google.com/appengine/downloads#Google_App_Engine_SDK_for_Java
+<i>4. Google App Engine SDK</i>. Можно скачать на https://cloud.google.com/appengine/downloads#Google_App_Engine_SDK_for_Java
 
 <source lang="Bash">
-    mkdir ~/GAE-SDK && cd ~/GAE-SDK
-    wget https://storage.googleapis.com/appengine-sdks/featured/appengine-java-sdk-1.9.27.zip && unzip appengine-java-sdk-1.9.27.zip
+mkdir ~/GAE-SDK && cd ~/GAE-SDK
+wget https://storage.googleapis.com/appengine-sdks/featured/appengine-java-sdk-1.9.27.zip && unzip appengine-java-sdk-1.9.27.zip
 </source>
 
 
