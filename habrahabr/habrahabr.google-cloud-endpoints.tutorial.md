@@ -1,15 +1,12 @@
-Google Cloud Endpoints на Java: руководство
-==========================================================
-
 <h1> Введение </h1>
-Google Cloud Endpoints – это надстройка над Google App Engine (GAE) для создания API для веб и мобильных приложений, делающая разработку проще и включающую в себя «из коробки» защиту от DoS-атак, OAuth 2.0 идентификацию, веб-интерфейс для тестирования API, SSL, атоматическая масштабируемость (сайт не упадет под хабра-эффектом), а также возможность использования сервисов доступных в Google App Engine (отсылка и прием электронной почты и XMPP-сообщений, загрузка данных из Интернет, задачи по расписанию и др.)
+Google Cloud Endpoints – это надстройка над Google App Engine (GAE) для создания API для веб и мобильных приложений, делающая разработку проще и включающую в себя «из коробки» защиту от DoS-атак, OAuth 2.0 аторизацию, веб-интерфейс для тестирования API, SSL, атоматическую масштабируемость (сайт не упадет под хабра-эффектом), а также возможность использования сервисов доступных в Google App Engine (отсылка и прием электронной почты и XMPP-сообщений, загрузка данных из Интернет (URL Fetch service), задачи по расписанию (Task Queues and Scheduled Tasks) и др.)
 
-GAE бесплатен в рамках начальных квот, которые позволяют попробовать и протестировать сервис, и также обеспечить функционирование вебсайта без больших нагрузок. При исчерпании квот сервис становиться платным.
+GAE бесплатен в рамках начальных квот, которые позволяют попробовать и протестировать сервис, и также обеспечить бесплатное функционирование веб-сайта не имеющего больших нагрузок. При исчерпании квот сервис становиться платным.
 Идея сервиса в том, что он делает всю или большую часть работы системного администратора, плюс некоторую часть работы программиста. Этот сервис может быть интересен стартапам, так как позволяет малыми силами и в котроткие сроки запустить рабочий проект.
 
 Фреймворк <a href="https://github.com/objectify/objectify">Objectify</a> предоставляет удобные стредства для работы со базой данных встроенной в GAE, а модуль <a href="https://github.com/maximepvrt/angular-google-gapi">angular-google-gapi</a> для подключения веб-приложения на AngularJS.
 
-Под катом много картинок и текста, и предполагается, что читатель знаком с Java Servlets (для бэкенда) и AngularJS (для фронтенда).
+Под катом много картинок и текста, и предполагается, что читатель знаком с Java Servlets.
 <cut>
 
 <h1> Регистрация </h1>
@@ -20,11 +17,9 @@ GAE бесплатен в рамках начальных квот, которы
 Например: hello-habrahabr-api.appspot.com
 
 ID должно быть уникальным. При этом если {ID проекта}@ gmail.com занято, то этот ID уже будет отмечен как «занят» для GAE. То есть на получиться создать  {ID проекта}.appspot.com и {ID проекта}@ gmail.com одновременно.
-
 <img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/pic.01.png" />
 
 После того как проект создан, он будет доступен в консоли разработчика:
-
 <img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/pic.02.png" />
 
 Для данного руководства мы создадим два проекта в консоли разработчика Google: hello-habrahabr-api.appspot.com , где будет API (собственно Google Cloud Endpoints), и hello-habrahabr-webapp.appspot.com , на котором разместим веб-клиент. Я делаю это для наглядности разделения фронэнда и бэкенда, можно было бы создавать на одном домене.
@@ -537,19 +532,16 @@ LOG.info("сообщение");
 
 <h1> Авторизация OAuth 2.0 используя учетную запись Google (@ gmail.com)</h1>
 В Constants.java добавим:
-
 <source lang="Java">
 import com.google.api.server.spi.Constant
 </source>
-
 и
-
 <source lang="Java">
 public static final String API_EXPLORER_CLIENT_ID = Constant.API_EXPLORER_CLIENT_ID
 </source>
-
 - это необходимо для тестирования OAuth-защищенных API-методов в APIs Explorer
 
+Наш Constants.java будет выглядеть следующим образом:
 <source lang="Java">
 package com.appspot.hello_habrahabr_api;
 
@@ -570,7 +562,6 @@ public class Constants {
 </source>
 
 Теперь создадим новый класс :
-
 <source lang="Java">
 
 package com.appspot.hello_habrahabr_api;
@@ -611,11 +602,8 @@ public class OAuth2Api {
         return user;
     }
 }
-
 </source>
-
 и пропишем его в init-param сервлета SystemServiceServlet в web.xml:
-
 <source lang="XML">
     <servlet>
         <servlet-name>SystemServiceServlet</servlet-name>
@@ -629,23 +617,13 @@ public class OAuth2Api {
         </init-param>
     </servlet>
 </source>
-
-деплоим проект, и смотрим API Explorer.
-
+деплоим проект, и смотрим API Explorer:
 <img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_05.png"/>
-
 Мы видим новое API в списке, кликнув по нему видим список его методов.
-
-<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_06.png"/>
-
 Кликаем на название метода:
-
 <img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_07.png"/>
-
 Теперь, если мы нажмем "Execute without OAuth" получим Exception:
-
 <img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_08.png"/>
-
 Если кликаем "Autorize and execute" - нужно залогиниться используя учетную запись Google. В Response соотвественно получим email, nickname и userId (уникальный номер пользователя Google)
 
 Объект класса com.google.appengine.api.users.User предоставляется GAE и содержит информацию о текущем пользователе, если пользователь не авторизован, соотвественно null. Таким образом мы можем проводить авторизацию используя логин-пароль учетной записи Google.
