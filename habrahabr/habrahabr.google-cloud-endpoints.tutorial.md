@@ -1,4 +1,4 @@
-Google Cloud Endpoints на Java: руководство для начинающих
+Google Cloud Endpoints на Java: руководство
 ==========================================================
 
 <h1> Введение </h1>
@@ -6,6 +6,8 @@ Google Cloud Endpoints – это надстройка над Google App Engine 
 
 GAE бесплатен в рамках начальных квот, которые позволяют попробовать и протестировать сервис, и также обеспечить функционирование вебсайта без больших нагрузок. При исчерпании квот сервис становиться платным.
 Идея сервиса в том, что он делает всю или большую часть работы системного администратора, плюс некоторую часть работы программиста. Этот сервис может быть интересен стартапам, так как позволяет малыми силами и в котроткие сроки запустить рабочий проект.
+
+Фреймворк <a href="https://github.com/objectify/objectify">Objectify</a> предоставляет удобные стредства для работы со базой данных встроенной в GAE, а модуль <a href="https://github.com/maximepvrt/angular-google-gapi">angular-google-gapi</a> для подключения веб-приложения на AngularJS.
 
 Под катом много картинок и текста, и предполагается, что читатель знаком с Java Servlets (для бэкенда) и AngularJS (для фронтенда).
 <cut>
@@ -155,7 +157,7 @@ Maven создаст папку имя которой будет соотвес�
 </properties>
 </source>
 
-<code>your-app-id</code> следует заменить на {ID проекта}, в моем случае это hello-habrahabr-api
+<code>your-app-id</code> следует заменить на {ID проекта}, в моем случае это hello-habrahabr-api (примечание: если вы не видете API в Services на ello-habrahabr-api.appspot.com/_ah/api/explorer - возможно забыли заменить)
 и <app.version>ver-1-0</app.version> приводим в соотвествие с <version>ver-1-0</version>
 
 в
@@ -234,7 +236,7 @@ Please visit https://developers.google.com/appengine/downloads for the latest SD
 
 <h1> Настраиваем Git на GAE </h1>
 
-На GAE есть возможность размещать бесплатный приватный Git репозиторий для своего кода. При просмотре логов можно получить ссылку на соотвествущий файл в репозитории, что удобно при тестировании и устранении ошибок.
+На GAE есть возможность размещать бесплатный приватный Git репозиторий для своего кода. Репозиторий является только хранилищем, код из него не деплоится, на сервере выполняется .war файл который был собран и загружен с помощью Maven.   просмотре логов можно получить ссылку на соотвествущий файл в репозитории, что удобно при тестировании и устранении ошибок.
 
 Сначала инициализируем git репозиторий в директории проекта:
 
@@ -271,6 +273,8 @@ exec -l $SHELL
 gcloud init # откроется окно браузера в котором надо залогиниться в учетную запись Google, потом в командной строке вводим имя нашего проекта
 </source>
 
+pic.08.png
+
 В будущем настройки можно поменять командой: gcloud config
 
 gcloud config list - показать настройки
@@ -278,6 +282,12 @@ gcloud config list - показать настройки
 gcloud config set - редактировать настройки
 
 gcloud config unset - стереть настройки Google Cloud SDK
+
+например:
+
+gcloud config unset account - стереть учетную запись в настройках
+
+gcloud config unset project - стереть имя проекта в настройках
 
 <h3> 2. Производим аутентификацию </h3>
 
@@ -290,7 +300,7 @@ git config credential.helper gcloud.sh
 
 <h3> 2. добавляем удаленный git репозиторий GAE </h3>
 
-git remote add google https://source.developers.google.com/p/{ID проекта}/
+git remote add google https://source.developers.google.com/p/ {ID проекта} /
 
 <source lang="Bash">
 git remote add google https://source.developers.google.com/p/hello-habrahabr-api/
@@ -312,29 +322,405 @@ git push --all google
 gcloud auth login
 </source>
 
-клонировать репозиторий на локальную машину:
+клонировать репозиторий на локальную машину (инструкция на сайте предлагающая для этого gcloud init {ID проекта} - устарела):
 
 <source lang="Bash">
-gcloud init {проект ID (hello-habrahabr-api)}
+gcloud source repos clone default {ID проекта}
 </source>
 
-переходим в созданную директорию:
-
-<source lang="Bash">
-cd {проект ID (hello-habrahabr-api)}/default
-</source>
-
-Пишем и коммитим код в локальном репозитории, и
+переходим в созданную директорию, пишем и коммитим код в локальном репозитории, и
 
 <source lang="Bash">
 git push -u origin master
 </source>
 
-См. также:
-https://cloud.google.com/tools/repo/push-to-deploy
+Для атоматизации работы можно использовать следующий скрипт (что-то вроде commit.push.build.and.upload.sh ):
+
+<source lang="Bash">
+mvn clean
+git add * # предполагает наличие .gitignore
+git commit -a
+git push -u google
+#
+mvn install
+mvn appengine:update
+</source>
+
+если приходится переключаться между проектами, в директорию проекта стоит разместить скрипт для быстрой и удобной смены настроек ( set.account.sh ):
+
+<source lang="Bash">
+gcloud config set account "{учетная запись @mgmail.com}"
+
+gcloud config set project "{проект ID}"
+
+gcloud config list
+
+rm ~/.appcfg_oauth2_tokens_java
+
+</source>
+
+<h1> Приступаем к написанию API</h1>
+
+Итак, теперь самое интересное ...
+
+Запускаем любимый редактор или IDE.
+
+Для IntelliJ IDEA:
+
+В настройках должен быть Maven версии 3.1.0 и выше, в IntelliJ IDEA сейчас по умолчанию 3.0.5. При необходимости меняем, указывая директорию, в которой у нас установлена последняя версия Maven, например /usr/local/apache-maven/apache-maven-3.3.3 (echo $M2_HOME)
+
+inport project -> указываем директорию проекта -> Import project from external model -> Maven -> можно оставить настройки по умолчанию -> Import Project -> указываем SDK (Java 1.7) -> Finish
+
+Прежде всего рассмотрим как выглядит WEB-INF/web.xml в нашем случае:
+
+<source lang="XML">
+
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+
+<web-app
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.5"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <servlet>
+        <servlet-name>SystemServiceServlet</servlet-name>
+        <servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
+        <init-param>
+            <param-name>services</param-name>
+            <param-value>com.appspot.hello_habrahabr_api.YourFirstAPI</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SystemServiceServlet</servlet-name>
+        <url-pattern>/_ah/spi/*</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+</web-app>
+
+</source>
+
+Обратим внимание, что все запросы к API направляются по адресу: /_ah/spi/* и  обрабатываются сервлетом com.google.api.server.spi.SystemServiceServlet (SystemServiceServlet)
+
+Одна из основных "фишек" Cloud Endpoints: по адресу /_ah/api/explorer  доступен веб-интерфейс для тестирования API.
+
+Для моделирования данных принимаемых и выдаваемых API используются JavaBean, т.е. классы отвечающие требованиям:
+
+* Иметь публичный (public) конструктор без параметров. В данном случае конструктор должен быть указан в явном виде, хотя в примерах на сайте Google это упускают, но без конструктора на практике не работает.
+
+* Все свойства класса должны быть приватными, доступ через get/set.
+
+* Класс должен быть сериализуем (в явном виде можно не указывать)
+
+Создадим два класса,
+
+UserForm.java :
+
+<source lang="Java">
+package com.appspot.hello_habrahabr_api;
+
+public class UserForm {
+
+    private String name;
+    private int age;
+    private boolean ishuman;
+
+    public UserForm() {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public boolean getIshuman() {
+        return ishuman;
+    }
+    // not just ishuman() for boolean
+    // as will be created using getters and setters generation
+    // in IntelliJ IDEA and Eclipse
+
+    public void setIshuman(boolean ishuman) {
+        this.ishuman = ishuman;
+    }
+}
+</source>
+
+и MessageToUser.java :
+
+<source lang="Java">
+package com.appspot.hello_habrahabr_api;
+
+public class MessageToUser {
+
+    private String name;
+    private String message;
+    private int usernumber;
+    private boolean isregistered;
+
+    public MessageToUser() {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public int getUsernumber() {
+        return usernumber;
+    }
+
+    public void setUsernumber(int usernumber) {
+        this.usernumber = usernumber;
+    }
+
+    public boolean getIsregistered() {
+        return isregistered;
+    }
+    // not "isregistered()" as suggested by IDE's getter/setter generator
+
+    public void setIsregistered(boolean isregistered) {
+        this.isregistered = isregistered;
+    }
+}
+
+</source>
+
+Теперь пишем класс для первого API-метода. Редактируем YourFirstApi.java , и вставим туда следующий код:
+
+<source lang="Java">
+package com.appspot.hello_habrahabr_api;
+
+import com.google.api.server.spi.config.Api;
+import com.google.api.server.spi.config.ApiMethod;
+import com.google.api.server.spi.config.ApiMethod.HttpMethod;
+
+@Api(
+        name = "myApi",
+        version = "v1",
+        scopes = {Constants.EMAIL_SCOPE},
+        description = "first API for this application."
+)
+
+public class YourFirstAPI {
+
+    @ApiMethod(
+            name = "register",
+            path = "register",
+            httpMethod = HttpMethod.POST
+    )
+
+    @SuppressWarnings("unused")
+
+    public MessageToUser userInfo(
+            final UserForm userForm
+    ) {
+
+        MessageToUser messageToUser = new MessageToUser();
+
+        messageToUser.setMessage("Hi, " + userForm.getName() + ", you are registered on our site");
+
+        messageToUser.setUsernumber(1);
+
+        messageToUser.setIsregistered(true);
+
+        return messageToUser;
+    }
+}
+</source>
+
+теперь деплоим (mvn clean install && mvn appengine:update)
+
+<h1> Веб-интерфейс к API (APIs Explorer) </h1>
+
+теперь деплоим (mvn clean install && mvn appengine:update) и открываем в веб-браузере адрес https://{проект ID}.appspot.com/_ah/api/explorer , в моем случае https://hello-habrahabr-api.appspot.com/_ah/api/explorer
+
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_01.png"/>
+
+Кликаем на название нашего API (если мы создадим несколько классов в аннотацией @Api - из будет несколько), и видим методы содержащиеся в этом API (методы класса с аннтотацией @ApiMethod ):
+
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_02.png"/>
+
+Кликнув по полю "Request body" мы можем заполнить данные запроса получаемого методом:
+
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_03.png"/>
+
+Далее мы можем выбрать "Autorizw and execute" - и тогда нам потребуется пройти авторизацию ипользуя учетную запись Google (@ gmail.com) либо выбрать "Execute without OAuth", поскольку наше API пока никак не использует авторизацию мы увидим одинаковые результаты с авторизацией и без:
+
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_04.png"/>
+
+"- Show headers -" в Response кликабельно.
+
+<h1>Logging</h1>
+
+Логи доступны по адресу:
+
+https://console.developers.google.com/project/{проект ID}/logs
+
+Настройки в файле /src/main/webapp/WEB-INF/logging.properties и /src/main/webapp/WEB-INF/appengine-web.xml
+
+Для того чтобы наш класс выдавал сообщения в лог, нужно
+
+1.
+<source lang="Java">
+import java.util.logging.Logger;
+</source>
+
+2.
+<source lang="Java">
+@SuppressWarnings("unused")
+private static final Logger LOG = Logger.getLogger({имя класса}.class.getName());
+</source>
+
+3. в метод добавим:
+
+<source lang="Java">
+LOG.info("сообщение");
+</source>
 
 
+<h1> Авторизация OAuth 2.0 используя учетную запись Google (@ gmail.com)</h1>
 
 
-http://hello-habrahabr-api.appspot.com/_ah/api/explorer
+В Constants.java добавим:
 
+import com.google.api.server.spi.Constant
+
+и
+
+public static final String API_EXPLORER_CLIENT_ID = Constant.API_EXPLORER_CLIENT_ID
+
+- это необходимо для тестирования OAuth-защищенных API-методов в APIs Explorer
+
+<source lang="Java">
+package com.appspot.hello_habrahabr_api;
+
+import com.google.api.server.spi.Constant;
+
+/**
+ * Contains the client IDs and scopes for allowed clients consuming your API.
+ */
+public class Constants {
+    public static final String WEB_CLIENT_ID = "replace this with your web client ID";
+    public static final String ANDROID_CLIENT_ID = "replace this with your Android client ID";
+    public static final String IOS_CLIENT_ID = "replace this with your iOS client ID";
+    public static final String ANDROID_AUDIENCE = WEB_CLIENT_ID;
+    public static final String EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
+
+    public static final String API_EXPLORER_CLIENT_ID = Constant.API_EXPLORER_CLIENT_ID;
+}
+</source>
+
+Теперь создадим новый класс :
+
+<source lang="Java">
+
+package com.appspot.hello_habrahabr_api;
+
+import com.google.api.server.spi.config.Api;
+import com.google.api.server.spi.config.ApiMethod;
+import com.google.api.server.spi.config.ApiMethod.HttpMethod;
+import com.google.api.server.spi.response.UnauthorizedException;
+import com.google.appengine.api.users.User;
+// https://cloud.google.com/appengine/docs/java/javadoc/index?com/google/appengine/api/users/User.html
+
+import java.util.logging.Logger;
+
+@Api(
+        name = "oAuth2Api", // The api name must match '[a-z]+[A-Za-z0-9]*'
+        version = "v1",
+        description = "API using OAuth2"
+)
+public class OAuth2Api {
+
+
+    @SuppressWarnings("unused")
+    private static final Logger LOG = Logger.getLogger(OAuth2Api.class.getName());
+
+    @ApiMethod(
+            name = "getUserInfo",
+            path = "getuserinfo",
+            httpMethod = HttpMethod.POST
+    )
+    @SuppressWarnings("unused")
+    public User getUserInfo(User user) throws UnauthorizedException {
+
+        if (user == null) {
+            LOG.warning("[warning] User not logged in");
+            throw new UnauthorizedException("Authorization required");
+        }
+
+        return user;
+    }
+}
+
+</source>
+
+и пропишем его в init-param сервлета SystemServiceServlet в web.xml:
+
+<source lang="XML">
+    <servlet>
+        <servlet-name>SystemServiceServlet</servlet-name>
+        <servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
+        <init-param>
+            <param-name>services</param-name>
+            <param-value>
+                com.appspot.hello_habrahabr_api.YourFirstAPI,
+                com.appspot.hello_habrahabr_api.OAuth2Api
+            </param-value>
+        </init-param>
+    </servlet>
+</source>
+
+деплоим проект, и смотрим API Explorer.
+
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_05.png"/>
+
+Мы видим новое API в списке, кликнув по нему видим список его методов.
+
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_06.png"/>
+
+Кликаем на название метода:
+
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_07.png"/>
+
+Теперь, если мы нажмем "Execute without OAuth" получим Exception:
+
+<img src="https://raw.githubusercontent.com/ageyev/cloud-endpoints-tutorial/master/habrahabr/images/Selection_08.png"/>
+
+Если кликаем "Autorize and execute" - нужно залогиниться используя учетную запись Google. В Response соотвественно получим email, nickname и userId (уникальный номер пользователя Google)
+
+Объект класса com.google.appengine.api.users.User предоставляется GAE и содержит информацию о текущем пользователе, если пользователь не авторизован, соотвественно null. Таким образом мы можем проводить авторизацию используя логин-пароль учетной записи Google.
+
+Как уже упоминалось на Хабре (<a href="http://habrahabr.ru/company/pushall/blog/268267/">Иногда лучше меньше — почему только Google-авторизация?</a>, <a href="http://habrahabr.ru/post/268253/">Юзабилити форм авторизации</a> )
+проект вообще может обойтись без собственной обработки логинов и паролей.
+На мой взляд это правильный подход, в первую очередь с точки зрения безопасности. Естественно, мы можем делать "регистрацию" на сайте после ввода дополнительной информации, платежа, и т.п.
+
+<i> Создание фронтэнда на AngularJS рассмотрим в следующей статье. <i>
