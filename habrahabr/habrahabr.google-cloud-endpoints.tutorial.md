@@ -1,10 +1,9 @@
-<h1> Введение </h1>
 Google Cloud Endpoints – это надстройка над Google App Engine (GAE) для создания API для веб и мобильных приложений, делающая разработку проще и включающую в себя «из коробки» защиту от DoS-атак, OAuth 2.0 аторизацию, веб-интерфейс для тестирования API, SSL, атоматическую масштабируемость (сайт не упадет под хабра-эффектом), а также возможность использования сервисов доступных в Google App Engine (отсылка и прием электронной почты и XMPP-сообщений, загрузка данных из Интернет (URL Fetch service), задачи по расписанию (Task Queues and Scheduled Tasks) и др.)
 
 GAE бесплатен в рамках начальных квот, которые позволяют попробовать и протестировать сервис, и также обеспечить бесплатное функционирование веб-сайта не имеющего больших нагрузок. При исчерпании квот сервис становиться платным.
 Идея сервиса в том, что он делает всю или большую часть работы системного администратора, плюс некоторую часть работы программиста. Этот сервис может быть интересен стартапам, так как позволяет малыми силами и в котроткие сроки запустить рабочий проект.
 
-Фреймворк <a href="https://github.com/objectify/objectify">Objectify</a> предоставляет удобные стредства для работы со базой данных встроенной в GAE, а модуль <a href="https://github.com/maximepvrt/angular-google-gapi">angular-google-gapi</a> для подключения веб-приложения на AngularJS.
+Фреймворк <a href="https://github.com/objectify/objectify">Objectify</a> предоставляет удобные стредства для работы со базой данных встроенной в GAE, а модуль <a href="https://github.com/maximepvrt/angular-google-gapi">angular-google-gapi</a> для подключения веб-приложения на AngularJS c авторизацией пользователей.
 
 Под катом много картинок и текста, и предполагается, что читатель знаком с Java Servlets.
 <cut>
@@ -507,7 +506,7 @@ public class YourFirstAPI {
 "- Show headers -" в Response кликабельно.
 
 <h1>Logging</h1>
-Логи доступны по адресу: https://console.developers.google.com/project/{проект ID}/logs
+Логи доступны по адресу: console.developers.google.com/project/{проект ID}/logs
 
 Настройки в файле /src/main/webapp/WEB-INF/logging.properties и /src/main/webapp/WEB-INF/appengine-web.xml
 
